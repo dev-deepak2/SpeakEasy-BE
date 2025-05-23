@@ -58,6 +58,7 @@ app.post('/api/text-to-speech', async (req, res) => {
       `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
       {
         text,
+         model_id: "eleven_monolingual_v1",
         voice_settings: {
           stability: 1.0,
           similarity_boost: 0.0
@@ -66,7 +67,7 @@ app.post('/api/text-to-speech', async (req, res) => {
       {
         headers: {
           "Content-Type": "application/json",
-          "xi-api-key": process.env.VITE_ELEVENLABS_API_KEY
+          "xi-api-key": process.env.ELEVENLABS_API_KEY
         },
         responseType: 'arraybuffer'
       }
@@ -75,9 +76,10 @@ app.post('/api/text-to-speech', async (req, res) => {
     res.setHeader('Content-Type', 'audio/mpeg');
     res.send(response.data);
   } catch (error) {
-    console.error('Error from ElevenLabs:', error.response?.data || error.message);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
+  const message = error.response?.data?.toString?.() || error.message;
+  console.error('Error from ElevenLabs:', message);
+  res.status(500).json({ error: 'Internal Server Error', details: message });
+}
 });
 
 // Route: Follow-up questions
